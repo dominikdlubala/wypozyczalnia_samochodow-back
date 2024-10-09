@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Surface\\Desktop\\_\\studia\\projekt_grupowy\\wypozyczalnia\\Backend\\Backend.csproj": {}
+    "C:\\Users\\Surface\\Desktop\\_\\studia\\projekt_grupowy\\wypozyczalnia_samochodow\\Backend\\Backend.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Surface\\Desktop\\_\\studia\\projekt_grupowy\\wypozyczalnia\\Backend\\Backend.csproj": {
+    "C:\\Users\\Surface\\Desktop\\_\\studia\\projekt_grupowy\\wypozyczalnia_samochodow\\Backend\\Backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Surface\\Desktop\\_\\studia\\projekt_grupowy\\wypozyczalnia\\Backend\\Backend.csproj",
+        "projectUniqueName": "C:\\Users\\Surface\\Desktop\\_\\studia\\projekt_grupowy\\wypozyczalnia_samochodow\\Backend\\Backend.csproj",
         "projectName": "Backend",
-        "projectPath": "C:\\Users\\Surface\\Desktop\\_\\studia\\projekt_grupowy\\wypozyczalnia\\Backend\\Backend.csproj",
+        "projectPath": "C:\\Users\\Surface\\Desktop\\_\\studia\\projekt_grupowy\\wypozyczalnia_samochodow\\Backend\\Backend.csproj",
         "packagesPath": "C:\\Users\\Surface\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Surface\\Desktop\\_\\studia\\projekt_grupowy\\wypozyczalnia\\Backend\\obj\\",
+        "outputPath": "C:\\Users\\Surface\\Desktop\\_\\studia\\projekt_grupowy\\wypozyczalnia_samochodow\\Backend\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Surface\\AppData\\Roaming\\NuGet\\NuGet.Config"
