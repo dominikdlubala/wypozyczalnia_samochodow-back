@@ -4560,11 +4560,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Surface\\Desktop\\_\\studia\\projekt_grupowy\\wypozyczalnia_samochodow\\Backend\\Backend.csproj",
+      "projectUniqueName": "C:\\Users\\Surface\\Desktop\\_\\studia\\projekt_grupowy\\wypozyczalnia_samochodow-back\\Backend\\Backend.csproj",
       "projectName": "Backend",
-      "projectPath": "C:\\Users\\Surface\\Desktop\\_\\studia\\projekt_grupowy\\wypozyczalnia_samochodow\\Backend\\Backend.csproj",
+      "projectPath": "C:\\Users\\Surface\\Desktop\\_\\studia\\projekt_grupowy\\wypozyczalnia_samochodow-back\\Backend\\Backend.csproj",
       "packagesPath": "C:\\Users\\Surface\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Surface\\Desktop\\_\\studia\\projekt_grupowy\\wypozyczalnia_samochodow\\Backend\\obj\\",
+      "outputPath": "C:\\Users\\Surface\\Desktop\\_\\studia\\projekt_grupowy\\wypozyczalnia_samochodow-back\\Backend\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Surface\\AppData\\Roaming\\NuGet\\NuGet.Config"
