@@ -9,4 +9,11 @@ public class User {
     public string Username { get; set;}
     [Required(ErrorMessage = "Password is required")]
     public string Password {get; set;}
+
+    public virtual List<Car>? FavouriteCars { get; set;}
+    public virtual List<Reservation>? Reservations { get; set;}
+    public virtual List<Review>? Reviews { get; set;}
+    public virtual List<Fault>? ReportedFaults { get; set;}
+
+
 }
