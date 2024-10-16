@@ -38,9 +38,9 @@ public class UserController: ControllerBase {
     }
 
     [HttpPost]
-    public async Task<ActionResult<User>> AddUser([FromBody] User user) {
+    public async Task<ActionResult<User>> AddUser([FromBody] RegisterFormValues formValues) {
 
-        Console.WriteLine($"username: {user.Username}"); 
+        Console.WriteLine($"username: {formValues.Username}"); 
         if(!ModelState.IsValid) {
             var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage); 
             foreach(var error in errors) {
@@ -49,9 +49,31 @@ public class UserController: ControllerBase {
             return BadRequest(ModelState); 
         }
 
+        User user = new User {
+            Email = formValues.Email,
+            Username = formValues.Username,
+            Password = formValues.Password,
+        };
+
         _context.Users.Add(user); 
         await _context.SaveChangesAsync(); 
 
         return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user); 
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
     }
 }
