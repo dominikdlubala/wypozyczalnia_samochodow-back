@@ -9,7 +9,7 @@
         public string? ReviewContent { get; set; }
         public DateTime DateOfIssue { get; set; }
 
-        public virtual Car Car { get; set; }
-        public virtual User User { get; set; }
+        public virtual Car? Car { get; set; }
+        public virtual User? User { get; set; }
     }
 }

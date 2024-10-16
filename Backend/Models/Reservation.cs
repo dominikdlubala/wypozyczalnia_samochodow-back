@@ -8,7 +8,7 @@
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
 
-        public virtual Car Car { get; set; }
-        public virtual User User { get; set; }
+        public virtual Car? Car { get; set; }
+        public virtual User? User { get; set; }
     }
 }
