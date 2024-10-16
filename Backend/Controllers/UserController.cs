@@ -32,17 +32,21 @@ public class UserController: ControllerBase {
 
     [HttpGet("find")]
     public async Task<ActionResult<User>> FindUser([FromQuery]string username, [FromQuery]string password) {
-        var user = await _context.Users.FirstOrDefaultAsync(user => user.Username == username && user.Password == password); 
 
-        if(user == null) return NotFound(); 
+        try {
+            var user = await _context.Users.FirstOrDefaultAsync(user => user.Username == username && user.Password == password); 
 
-        return user; 
+            if(user == null) return NotFound(); 
+
+            return user; 
+        } catch (Exception e) {
+            return BadRequest(e.Message); 
+        }
     }
 
     [HttpPost]
     public async Task<ActionResult<User>> AddUser([FromBody] RegisterFormValues formValues) {
 
-        Console.WriteLine($"username: {formValues.Username}"); 
         if(!ModelState.IsValid) {
             var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage); 
             foreach(var error in errors) {
