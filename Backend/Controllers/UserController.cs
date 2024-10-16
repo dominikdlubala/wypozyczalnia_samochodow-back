@@ -1,12 +1,14 @@
-using Backend.Data; 
-using Backend.Models; 
+using Backend.Data;
+using Backend.Models;
+using Backend.Models.DTOs;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.EntityFrameworkCore; 
+using Microsoft.EntityFrameworkCore;
 
-namespace Backend.Controllers; 
+namespace Backend.Controllers;
 
+[ApiController]
 [Route("api/[controller]")]
 public class UserController: ControllerBase {
     private readonly AppDbContext _context; 
@@ -43,7 +45,7 @@ public class UserController: ControllerBase {
     }
 
     [HttpPost]
-    public async Task<ActionResult<User>> AddUser([FromBody] User user) {
+    public async Task<ActionResult<User>> AddUser([FromBody] RegisterFormValues formValues) {
 
         if(!ModelState.IsValid) {
             var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage); 
@@ -53,9 +55,31 @@ public class UserController: ControllerBase {
             return BadRequest(ModelState); 
         }
 
+        User user = new User {
+            Email = formValues.Email,
+            Username = formValues.Username,
+            Password = formValues.Password,
+        };
+
         _context.Users.Add(user); 
         await _context.SaveChangesAsync(); 
 
         return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user); 
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
     }
 }
