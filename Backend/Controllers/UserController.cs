@@ -1,12 +1,14 @@
-using Backend.Data; 
-using Backend.Models; 
+using Backend.Data;
+using Backend.Models;
+using Backend.Models.DTOs;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.EntityFrameworkCore; 
+using Microsoft.EntityFrameworkCore;
 
-namespace Backend.Controllers; 
+namespace Backend.Controllers;
 
+[ApiController]
 [Route("api/[controller]")]
 public class UserController: ControllerBase {
     private readonly AppDbContext _context; 
