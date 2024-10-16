@@ -13,12 +13,11 @@ public class User {
     public string Username { get; set; } = null!;
     
     [Required(ErrorMessage = "Password is required")]
-    public string? Password {get; set; } = null!;
+    public string Password {get; set; } = null!;
 
     public virtual List<Car>? FavouriteCars { get; set;}
     public virtual List<Reservation>? Reservations { get; set;}
     public virtual List<Review>? Reviews { get; set;}
     public virtual List<Fault>? ReportedFaults { get; set;}
-
 
 }

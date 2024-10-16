@@ -28,6 +28,15 @@ public class UserController: ControllerBase {
         return user; 
     }
 
+    [HttpGet("find")]
+    public async Task<ActionResult<User>> FindUser([FromQuery]string username, [FromQuery]string password) {
+        var user = await _context.Users.FirstOrDefaultAsync(user => user.Username == username && user.Password == password); 
+
+        if(user == null) return NotFound(); 
+
+        return user; 
+    }
+
     [HttpPost]
     public async Task<ActionResult<User>> AddUser([FromBody] User user) {
 
