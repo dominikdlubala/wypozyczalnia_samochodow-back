@@ -4,11 +4,16 @@ namespace Backend.Models;
 
 public class User {
 
-    public int Id {get; set;}
+    public int Id { get; set;}
+    public string? FirstName { get; set;}    
+    public string? LastName { get; set;}
+    public DateTime RegistrationDate { get; set;}
+    
     [Required(ErrorMessage = "Username is required")]
-    public string Username { get; set;}
+    public string Username { get; set; } = null!;
+    
     [Required(ErrorMessage = "Password is required")]
-    public string Password {get; set;}
+    public string? Password {get; set; } = null!;
 
     public virtual List<Car>? FavouriteCars { get; set;}
     public virtual List<Reservation>? Reservations { get; set;}
