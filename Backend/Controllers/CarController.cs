@@ -18,16 +18,16 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllCars()
+        public async Task<IActionResult> GetAllCars()
         {
-            var cars = _context.Cars.ToList();
+            var cars =  await _context.Cars.ToListAsync();
             return Ok(cars);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetCarById(int id)
+        public async Task<IActionResult> GetCarById(int id)
         {
-            var car = _context.Cars.Find(id);
+            var car = await _context.Cars.FindAsync(id);
 
             if (car == null)
             {
@@ -38,21 +38,21 @@ namespace Backend.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddCar([FromBody] Car newCar)
+        public async Task<IActionResult> AddCar([FromBody] Car newCar)
         {
             if (newCar == null)
             {
                 return BadRequest("Car object is null");
             }
 
-            _context.Cars.Add(newCar);
-            _context.SaveChanges();
+            await _context.Cars.AddAsync(newCar);
+            await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetCarById), new { id = newCar.Id }, newCar);
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateCar(int id, [FromBody] Car updatedCar)
+        public async Task<IActionResult> UpdateCar(int id, [FromBody] Car updatedCar)
         {
             var existingCar = _context.Cars.Find(id);
 
@@ -72,13 +72,13 @@ namespace Backend.Controllers
             existingCar.ProductionYear = updatedCar.ProductionYear;
 
             _context.Cars.Update(existingCar);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteCar(int id)
+        public async Task<IActionResult> DeleteCar(int id)
         {
             var car = _context.Cars.Find(id);
 
@@ -88,7 +88,7 @@ namespace Backend.Controllers
             }
 
             _context.Cars.Remove(car);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
@@ -118,7 +118,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet("filter")]
-        public IActionResult GetFilteredCars([FromQuery] CarFilter filter)
+        public async Task<IActionResult> GetFilteredCars([FromQuery] CarFilter filter)
         {
             var carsQuery = _context.Cars.AsQueryable();
 
@@ -173,7 +173,7 @@ namespace Backend.Controllers
                 carsQuery = carsQuery.Where(c => c.ProductionYear <= yearMax);
             }
 
-            var filteredCars = carsQuery.ToList();
+            var filteredCars = await carsQuery.ToListAsync();
 
             return Ok(filteredCars);
         }
