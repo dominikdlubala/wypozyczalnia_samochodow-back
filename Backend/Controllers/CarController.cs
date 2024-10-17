@@ -93,6 +93,29 @@ namespace Backend.Controllers
             return NoContent();
         }
 
+        [HttpGet("uniqueProperties")]
+        public async Task<IActionResult> GetUniquePropertyValues()
+        {
+            var uniqueValues = new UniqueCarPropertyValues
+            {
+                FuelTypes = await _context.Cars
+                                .Select(c => c.FuelType)
+                                .Distinct()
+                                .ToListAsync(),
+
+                BodyTypes = await _context.Cars
+                                .Select(c => c.BodyType)
+                                .Distinct()
+                                .ToListAsync(),
+
+                Colors = await _context.Cars
+                                .Select(c => c.Color)
+                                .Distinct()
+                                .ToListAsync(),
+            };
+
+            return Ok(uniqueValues);
+        }
 
         [HttpGet("filter")]
         public async Task<IActionResult> GetFilteredCars([FromQuery] CarFilter filter)
