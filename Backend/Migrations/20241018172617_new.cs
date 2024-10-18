@@ -43,8 +43,10 @@ namespace Backend.Migrations
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RegistrationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Username = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsAdmin = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -218,24 +220,24 @@ namespace Backend.Migrations
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "Id", "FirstName", "LastName", "Password", "RegistrationDate", "Username" },
+                columns: new[] { "Id", "Email", "FirstName", "IsAdmin", "LastName", "Password", "RegistrationDate", "Username" },
                 values: new object[,]
                 {
-                    { 1, "John", "Doe", "password1", new DateTime(2021, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "john.doe" },
-                    { 2, "Jane", "Smith", "password2", new DateTime(2020, 8, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), "jane.smith" },
-                    { 3, "Alice", "Johnson", "password3", new DateTime(2022, 3, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "alice.johnson" },
-                    { 4, "Bob", "Brown", "password4", new DateTime(2019, 11, 5, 0, 0, 0, 0, DateTimeKind.Unspecified), "bob.brown" },
-                    { 5, "Charlie", "Davis", "password5", new DateTime(2021, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "charlie.davis" },
-                    { 6, "Emily", "White", "password6", new DateTime(2020, 7, 23, 0, 0, 0, 0, DateTimeKind.Unspecified), "emily.white" },
-                    { 7, "David", "Miller", "password7", new DateTime(2019, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "david.miller" },
-                    { 8, "Samantha", "Clark", "password8", new DateTime(2021, 1, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), "samantha.clark" },
-                    { 9, "Michael", "Wilson", "password9", new DateTime(2020, 6, 18, 0, 0, 0, 0, DateTimeKind.Unspecified), "michael.wilson" },
-                    { 10, "Olivia", "Martinez", "password10", new DateTime(2022, 2, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), "olivia.martinez" },
-                    { 11, "Lucas", "Garcia", "password11", new DateTime(2018, 9, 9, 0, 0, 0, 0, DateTimeKind.Unspecified), "lucas.garcia" },
-                    { 12, "Sophia", "Lopez", "password12", new DateTime(2021, 10, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), "sophia.lopez" },
-                    { 13, "James", "Thomas", "password13", new DateTime(2020, 3, 5, 0, 0, 0, 0, DateTimeKind.Unspecified), "james.thomas" },
-                    { 14, "Ava", "Moore", "password14", new DateTime(2021, 7, 29, 0, 0, 0, 0, DateTimeKind.Unspecified), "ava.moore" },
-                    { 15, "Isabella", "Taylor", "password15", new DateTime(2019, 8, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "isabella.taylor" }
+                    { 1, null, "John", false, "Doe", "password1", new DateTime(2021, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "john.doe" },
+                    { 2, null, "Jane", false, "Smith", "password2", new DateTime(2020, 8, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), "jane.smith" },
+                    { 3, null, "Alice", false, "Johnson", "password3", new DateTime(2022, 3, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "alice.johnson" },
+                    { 4, null, "Bob", false, "Brown", "password4", new DateTime(2019, 11, 5, 0, 0, 0, 0, DateTimeKind.Unspecified), "bob.brown" },
+                    { 5, null, "Charlie", false, "Davis", "password5", new DateTime(2021, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "charlie.davis" },
+                    { 6, null, "Emily", false, "White", "password6", new DateTime(2020, 7, 23, 0, 0, 0, 0, DateTimeKind.Unspecified), "emily.white" },
+                    { 7, null, "David", false, "Miller", "password7", new DateTime(2019, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "david.miller" },
+                    { 8, null, "Samantha", false, "Clark", "password8", new DateTime(2021, 1, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), "samantha.clark" },
+                    { 9, null, "Michael", false, "Wilson", "password9", new DateTime(2020, 6, 18, 0, 0, 0, 0, DateTimeKind.Unspecified), "michael.wilson" },
+                    { 10, null, "Olivia", false, "Martinez", "password10", new DateTime(2022, 2, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), "olivia.martinez" },
+                    { 11, null, "Lucas", false, "Garcia", "password11", new DateTime(2018, 9, 9, 0, 0, 0, 0, DateTimeKind.Unspecified), "lucas.garcia" },
+                    { 12, null, "Sophia", false, "Lopez", "password12", new DateTime(2021, 10, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), "sophia.lopez" },
+                    { 13, null, "James", false, "Thomas", "password13", new DateTime(2020, 3, 5, 0, 0, 0, 0, DateTimeKind.Unspecified), "james.thomas" },
+                    { 14, null, "Ava", false, "Moore", "password14", new DateTime(2021, 7, 29, 0, 0, 0, 0, DateTimeKind.Unspecified), "ava.moore" },
+                    { 15, null, "Isabella", false, "Taylor", "password15", new DateTime(2019, 8, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "isabella.taylor" }
                 });
 
             migrationBuilder.InsertData(

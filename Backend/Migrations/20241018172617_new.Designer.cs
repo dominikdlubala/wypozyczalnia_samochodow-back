@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241016182010_new")]
+    [Migration("20241018172617_new")]
     partial class @new
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace Backend.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.8")
+                .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -1148,8 +1148,14 @@ namespace Backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("FirstName")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
@@ -1174,6 +1180,7 @@ namespace Backend.Migrations
                         {
                             Id = 1,
                             FirstName = "John",
+                            IsAdmin = false,
                             LastName = "Doe",
                             Password = "password1",
                             RegistrationDate = new DateTime(2021, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -1183,6 +1190,7 @@ namespace Backend.Migrations
                         {
                             Id = 2,
                             FirstName = "Jane",
+                            IsAdmin = false,
                             LastName = "Smith",
                             Password = "password2",
                             RegistrationDate = new DateTime(2020, 8, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -1192,6 +1200,7 @@ namespace Backend.Migrations
                         {
                             Id = 3,
                             FirstName = "Alice",
+                            IsAdmin = false,
                             LastName = "Johnson",
                             Password = "password3",
                             RegistrationDate = new DateTime(2022, 3, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -1201,6 +1210,7 @@ namespace Backend.Migrations
                         {
                             Id = 4,
                             FirstName = "Bob",
+                            IsAdmin = false,
                             LastName = "Brown",
                             Password = "password4",
                             RegistrationDate = new DateTime(2019, 11, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -1210,6 +1220,7 @@ namespace Backend.Migrations
                         {
                             Id = 5,
                             FirstName = "Charlie",
+                            IsAdmin = false,
                             LastName = "Davis",
                             Password = "password5",
                             RegistrationDate = new DateTime(2021, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -1219,6 +1230,7 @@ namespace Backend.Migrations
                         {
                             Id = 6,
                             FirstName = "Emily",
+                            IsAdmin = false,
                             LastName = "White",
                             Password = "password6",
                             RegistrationDate = new DateTime(2020, 7, 23, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -1228,6 +1240,7 @@ namespace Backend.Migrations
                         {
                             Id = 7,
                             FirstName = "David",
+                            IsAdmin = false,
                             LastName = "Miller",
                             Password = "password7",
                             RegistrationDate = new DateTime(2019, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -1237,6 +1250,7 @@ namespace Backend.Migrations
                         {
                             Id = 8,
                             FirstName = "Samantha",
+                            IsAdmin = false,
                             LastName = "Clark",
                             Password = "password8",
                             RegistrationDate = new DateTime(2021, 1, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -1246,6 +1260,7 @@ namespace Backend.Migrations
                         {
                             Id = 9,
                             FirstName = "Michael",
+                            IsAdmin = false,
                             LastName = "Wilson",
                             Password = "password9",
                             RegistrationDate = new DateTime(2020, 6, 18, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -1255,6 +1270,7 @@ namespace Backend.Migrations
                         {
                             Id = 10,
                             FirstName = "Olivia",
+                            IsAdmin = false,
                             LastName = "Martinez",
                             Password = "password10",
                             RegistrationDate = new DateTime(2022, 2, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -1264,6 +1280,7 @@ namespace Backend.Migrations
                         {
                             Id = 11,
                             FirstName = "Lucas",
+                            IsAdmin = false,
                             LastName = "Garcia",
                             Password = "password11",
                             RegistrationDate = new DateTime(2018, 9, 9, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -1273,6 +1290,7 @@ namespace Backend.Migrations
                         {
                             Id = 12,
                             FirstName = "Sophia",
+                            IsAdmin = false,
                             LastName = "Lopez",
                             Password = "password12",
                             RegistrationDate = new DateTime(2021, 10, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -1282,6 +1300,7 @@ namespace Backend.Migrations
                         {
                             Id = 13,
                             FirstName = "James",
+                            IsAdmin = false,
                             LastName = "Thomas",
                             Password = "password13",
                             RegistrationDate = new DateTime(2020, 3, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -1291,6 +1310,7 @@ namespace Backend.Migrations
                         {
                             Id = 14,
                             FirstName = "Ava",
+                            IsAdmin = false,
                             LastName = "Moore",
                             Password = "password14",
                             RegistrationDate = new DateTime(2021, 7, 29, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -1300,6 +1320,7 @@ namespace Backend.Migrations
                         {
                             Id = 15,
                             FirstName = "Isabella",
+                            IsAdmin = false,
                             LastName = "Taylor",
                             Password = "password15",
                             RegistrationDate = new DateTime(2019, 8, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),

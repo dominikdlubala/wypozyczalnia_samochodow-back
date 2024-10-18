@@ -9,8 +9,8 @@ public class User {
     public string? LastName { get; set;}
     public DateTime RegistrationDate { get; set;} = DateTime.Now;
 
-    [Required(ErrorMessage = "Email is required")]
-    public string Email { get; set; } = null!;
+    // [Required(ErrorMessage = "Email is required")]
+    public string? Email { get; set; }
     
     [Required(ErrorMessage = "Username is required")]
     public string Username { get; set; } = null!;
