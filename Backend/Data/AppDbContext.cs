@@ -15,6 +15,44 @@ public class AppDbContext: DbContext {
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<Reservation>()
+            .HasOne(r => r.User)
+            .WithMany(u => u.Reservations)
+            .HasForeignKey(r => r.UserId); 
+
+        modelBuilder.Entity<Reservation>()
+            .HasOne(r => r.Car)
+            .WithMany(c => c.Reservations)
+            .HasForeignKey(r => r.CarId); 
+
+        modelBuilder.Entity<Review>()
+        .HasOne(r => r.User)
+        .WithMany(u => u.Reviews)
+        .HasForeignKey(r => r.UserId);
+
+
+        modelBuilder.Entity<Review>()
+            .HasOne(r => r.Car)
+            .WithMany(c => c.Reviews)
+            .HasForeignKey(r => r.CarId);
+
+
+        modelBuilder.Entity<Fault>()
+            .HasOne(f => f.ReportedUser)
+            .WithMany(u => u.ReportedFaults)
+            .HasForeignKey(f => f.ReportedUserId);
+
+
+        modelBuilder.Entity<Fault>()
+            .HasOne(f => f.Car)
+            .WithMany(c => c.Faults)
+            .HasForeignKey(f => f.CarId);
+            
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.FavouriteCars)
+            .WithMany(c => c.UsersFavourites)
+            .UsingEntity(j => j.ToTable("UserFavouriteCars"));          
+        
         modelBuilder.Entity<Car>().HasData(
             new Car { Id = 1, Brand = "Toyota", Model = "Corolla", ImageUrl = "/img1.jpg", FuelType = "Petrol", Capacity = 1.6f, BodyType = "Sedan", Color = "Red", PricePerDay = 86, ProductionYear = 2017 },
             new Car { Id = 2, Brand = "Ford", Model = "Focus", ImageUrl = "/img2.jpg", FuelType = "Diesel", Capacity = 2.2f, BodyType = "Hatchback", Color = "Blue", PricePerDay = 140, ProductionYear = 2008 },

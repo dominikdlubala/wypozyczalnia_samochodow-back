@@ -1,4 +1,7 @@
-﻿namespace Backend.Models
+﻿using System.Text.Json; 
+using System.Text.Json.Serialization; 
+
+namespace Backend.Models
 {
     public class Reservation
     {
@@ -8,7 +11,9 @@
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
 
+        [JsonIgnore]
         public virtual Car? Car { get; set; }
+        [JsonIgnore]
         public virtual User? User { get; set; }
     }
 }

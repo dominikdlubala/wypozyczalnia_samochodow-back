@@ -1,4 +1,7 @@
-﻿namespace Backend.Models
+﻿using System.Text.Json; 
+using System.Text.Json.Serialization; 
+
+namespace Backend.Models
 {
     public class Car
     {
@@ -13,9 +16,14 @@
         public float PricePerDay { get; set; }
         public int ProductionYear { get; set; }
 
+        [JsonIgnore]
         public virtual List<User>? UsersFavourites { get; set; }
+        [JsonIgnore]
+
         public virtual List<Reservation>? Reservations { get; set; }
+        [JsonIgnore]
         public virtual List<Fault>? Faults { get; set; }
+        [JsonIgnore]
         public virtual List<Review>? Reviews { get; set; }
     }
 }

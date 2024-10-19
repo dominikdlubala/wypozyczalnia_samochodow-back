@@ -72,10 +72,10 @@ namespace Backend.Controllers
                     return BadRequest("Car object is null");
                 }
                 var car = await _context.Cars.FindAsync(newReservation.CarId); 
-
-                Console.WriteLine($"Received reservation: CarId={newReservation.CarId}, StartDate={newReservation.StartDate}, EndDate={newReservation.EndDate}");
-                if(car == null) return BadRequest("Car not found"); 
+                var user = await _context.Users.FindAsync(newReservation.UserId); 
+                if(car == null || user == null) return BadRequest("Car or user not found"); 
                 newReservation.Car = car; 
+                newReservation.User = user; 
                 await _context.Reservations.AddAsync(newReservation);
                 await _context.SaveChangesAsync();
 
