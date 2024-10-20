@@ -1,3 +1,5 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using Backend.Data;
 using Backend.Models;
 using Backend.Models.DTOs;
@@ -5,6 +7,8 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims; 
 
 namespace Backend.Controllers;
 
@@ -12,6 +16,7 @@ namespace Backend.Controllers;
 [Route("api/[controller]")]
 public class UserController: ControllerBase {
     private readonly AppDbContext _context; 
+    private readonly IConfiguration _configuration; 
 
     public UserController(AppDbContext context) {
         _context = context;
@@ -30,8 +35,32 @@ public class UserController: ControllerBase {
         return user; 
     }
 
-    [HttpGet("find")]
-    public async Task<ActionResult<User>> FindUser([FromQuery]string username, [FromQuery]string password) {
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody]string username, [FromBody]string password) {
+        var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username && u.Password == password); 
+        if(user == null) return Unauthorized("Invalid username or password"); 
+
+        var tokenHandler = new JwtSecurityTokenHandler(); 
+        var key = Encoding.ASCII.GetBytes(_configuration["JwtSettins:Key"]); 
+        var tokenDescriptor = new SecurityTokenDescriptor {
+            Subject = new ClaimsIdentity(new Claim[] {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Username)
+            }),
+            Expires = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["JwtSettings:ExpiryMinutes"])),
+            Issuer = _configuration["JwtSettings:Issuer"],
+            Audience = _configuration["JwtSettings:Audience"],
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        }; 
+
+        var token = tokenHandler.CreateToken(tokenDescriptor); 
+        var tokenString = tokenHandler.WriteToken(token); 
+
+        return Ok(new { Token = tokenString }); 
+    }
+
+    [HttpPost("find")]
+    public async Task<ActionResult<User>> FindUser([FromBody]string username, [FromBody]string password) {
 
         try {
             var user = await _context.Users.FirstOrDefaultAsync(user => user.Username == username && user.Password == password); 
