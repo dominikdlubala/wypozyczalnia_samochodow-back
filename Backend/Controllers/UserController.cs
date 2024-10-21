@@ -18,8 +18,9 @@ public class UserController: ControllerBase {
     private readonly AppDbContext _context; 
     private readonly IConfiguration _configuration; 
 
-    public UserController(AppDbContext context) {
+    public UserController(AppDbContext context, IConfiguration configuration) {
         _context = context;
+        _configuration = configuration; 
     }
 
     [HttpGet]
@@ -36,12 +37,13 @@ public class UserController: ControllerBase {
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody]string username, [FromBody]string password) {
-        var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username && u.Password == password); 
+    public async Task<IActionResult> Login([FromBody]LoginRequestDto credentials) {
+        var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == credentials.Username && u.Password == credentials.Password); 
         if(user == null) return Unauthorized("Invalid username or password"); 
 
         var tokenHandler = new JwtSecurityTokenHandler(); 
-        var key = Encoding.ASCII.GetBytes(_configuration["JwtSettins:Key"]); 
+
+        var key = Encoding.ASCII.GetBytes(_configuration["JwtSettings:Key"]); 
         var tokenDescriptor = new SecurityTokenDescriptor {
             Subject = new ClaimsIdentity(new Claim[] {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -60,10 +62,10 @@ public class UserController: ControllerBase {
     }
 
     [HttpPost("find")]
-    public async Task<ActionResult<User>> FindUser([FromBody]string username, [FromBody]string password) {
+    public async Task<ActionResult<User>> FindUser([FromBody]LoginRequestDto credentials) {
 
         try {
-            var user = await _context.Users.FirstOrDefaultAsync(user => user.Username == username && user.Password == password); 
+            var user = await _context.Users.FirstOrDefaultAsync(user => user.Username == credentials.Username && user.Password == credentials.Password); 
 
             if(user == null) return NotFound(); 
 
