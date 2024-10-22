@@ -75,7 +75,7 @@ public class UserController: ControllerBase {
         }
     }
 
-    [HttpPost]
+    [HttpPost("register")]
     public async Task<ActionResult<User>> AddUser([FromBody] RegisterFormValues formValues) {
 
         if(!ModelState.IsValid) {
@@ -95,7 +95,7 @@ public class UserController: ControllerBase {
         _context.Users.Add(user); 
         await _context.SaveChangesAsync(); 
 
-        return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user); 
+        return Ok(); 
     }
 
     [HttpDelete("{id}")]
