@@ -211,6 +211,20 @@ namespace Backend.Controllers
                     carsQuery = carsQuery.Where(c => c.ProductionYear <= yearMax);
                 }
 
+                if (filter.ReservationStart != null && filter.ReservationEnd!= null)
+                {
+                    DateTime startReservation = filter.ReservationStart.Value;
+                    DateTime endReservation = filter.ReservationEnd.Value;
+
+                    carsQuery = carsQuery.Where(c => 
+                        c.Reservations == null || 
+                        !c.Reservations.Any(r => 
+                            (r.StartDate >= startReservation && r.StartDate < endReservation) || // Inna rezerwacja nie zaczyna się pomiędzy
+                            (r.EndDate > startReservation && r.EndDate <= endReservation)        // Inna rezerwacja nie kończy się pomiędzy
+                        )
+                    );
+                }
+
                 var filteredCars = await carsQuery.ToListAsync();
 
                 return Ok(filteredCars);

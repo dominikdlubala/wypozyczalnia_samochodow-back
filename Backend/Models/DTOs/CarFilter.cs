@@ -10,6 +10,8 @@
         public string? PriceMax { get; set; }
         public string? YearMin { get; set; }
         public string? YearMax { get; set; }
+        public DateTime? ReservationStart { get; set; }
+        public DateTime? ReservationEnd { get; set; }
     }
 
 }
