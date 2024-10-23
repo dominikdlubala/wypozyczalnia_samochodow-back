@@ -211,6 +211,8 @@ namespace Backend.Controllers
                     carsQuery = carsQuery.Where(c => c.ProductionYear <= yearMax);
                 }
 
+                // Daty w formacie ISO 8601 (yyyy-MM-ddTHH:mm:ss)
+                // Przykładowo 2024-10-25T12:00:00
                 if (filter.ReservationStart != null && filter.ReservationEnd!= null)
                 {
                     DateTime startReservation = filter.ReservationStart.Value;
