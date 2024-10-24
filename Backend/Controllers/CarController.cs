@@ -50,7 +50,20 @@ namespace Backend.Controllers
         public async Task<IActionResult> GetTopCars() {
             try {
                 var cars = await _context.Cars
-                    .OrderByDescending(c => c.Reservations != null ? c.Reservations.Count : 0)
+                    .Select(c => new {
+                        c.Id, 
+                        c.Brand, 
+                        c.Model, 
+                        c.ImageUrl, 
+                        c.FuelType, 
+                        c.Capacity, 
+                        c.BodyType, 
+                        c.Color, 
+                        c.PricePerDay,
+                        c.ProductionYear,
+                        ReservationCount = _context.Reservations.Count(r => r.CarId == c.Id)
+                    })
+                    .OrderByDescending(c => c.ReservationCount)
                     .Take(5)
                     .ToListAsync(); 
                 return Ok(cars); 

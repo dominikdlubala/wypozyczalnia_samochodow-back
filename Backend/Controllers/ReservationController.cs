@@ -108,22 +108,25 @@ namespace Backend.Controllers
             }
         }
 
-
+        [Authorize]
         [HttpDelete("delete{id}")]
-        public async Task<IActionResult> DeleteCar(int id)
+        public async Task<IActionResult> DeleteReservation(int id)
         {
             try {
-                var car = _context.Cars.Find(id);
-
-                if (car == null)
-                {
-                    return NotFound();
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value; 
+                if(string.IsNullOrEmpty(userIdClaim)){
+                    return BadRequest("User not authorized"); 
                 }
+                var userId = Int32.Parse(userIdClaim); 
 
-                _context.Cars.Remove(car);
-                await _context.SaveChangesAsync();
+                var reservation = _context.Reservations.FirstOrDefault(r => r.Id == id && r.UserId == userId); 
+                if(reservation == null){
+                    return BadRequest("Reservation not found"); 
+                }   
+                _context.Reservations.Remove(reservation); 
+                await _context.SaveChangesAsync(); 
 
-                return NoContent();
+                return Ok();
             } catch (Exception e){
                 return BadRequest(e); 
             }
