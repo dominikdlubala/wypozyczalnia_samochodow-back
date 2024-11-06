@@ -1,6 +1,4 @@
-﻿using System.Net;
-using Backend.Data;
-using Backend.Models;
+﻿using Backend.Data;
 using Backend.Models.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -67,73 +65,6 @@ namespace Backend.Controllers
                     .Take(5)
                     .ToListAsync(); 
                 return Ok(cars); 
-            } catch (Exception e){
-                return BadRequest(e); 
-            }
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> AddCar([FromBody] Car newCar)
-        {
-            try {
-                if (newCar == null)
-                {
-                    return BadRequest("Car object is null");
-                }
-                await _context.Cars.AddAsync(newCar);
-                await _context.SaveChangesAsync();
-
-                return CreatedAtAction(nameof(GetCarById), new { id = newCar.Id }, newCar);
-            } catch (Exception e){
-                return BadRequest(e); 
-            }
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCar(int id, [FromBody] Car updatedCar)
-        {
-            try {
-                var existingCar = _context.Cars.Find(id);
-
-                if (existingCar == null)
-                {
-                    return NotFound();
-                }
-
-                existingCar.Brand = updatedCar.Brand;
-                existingCar.Model = updatedCar.Model;
-                existingCar.ImageUrl = updatedCar.ImageUrl;
-                existingCar.FuelType = updatedCar.FuelType;
-                existingCar.Capacity = updatedCar.Capacity;
-                existingCar.BodyType = updatedCar.BodyType;
-                existingCar.Color = updatedCar.Color;
-                existingCar.PricePerDay = updatedCar.PricePerDay;
-                existingCar.ProductionYear = updatedCar.ProductionYear;
-
-                _context.Cars.Update(existingCar);
-                await _context.SaveChangesAsync();
-
-                return NoContent();
-            } catch (Exception e){
-                return BadRequest(e); 
-            }
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCar(int id)
-        {
-            try {
-                var car = _context.Cars.Find(id);
-
-                if (car == null)
-                {
-                    return NotFound();
-                }
-
-                _context.Cars.Remove(car);
-                await _context.SaveChangesAsync();
-
-                return NoContent();
             } catch (Exception e){
                 return BadRequest(e); 
             }

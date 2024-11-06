@@ -3,12 +3,10 @@ using System.Text;
 using Backend.Data;
 using Backend.Models;
 using Backend.Models.DTOs;
-using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims; 
+using System.Security.Claims;
 
 namespace Backend.Controllers;
 
