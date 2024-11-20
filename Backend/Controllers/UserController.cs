@@ -45,7 +45,8 @@ public class UserController: ControllerBase {
         var tokenDescriptor = new SecurityTokenDescriptor {
             Subject = new ClaimsIdentity(new Claim[] {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Username)
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User") // Dodanie flagi do tokena
             }),
             Expires = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["JwtSettings:ExpiryMinutes"])),
             Issuer = _configuration["JwtSettings:Issuer"],
