@@ -23,11 +23,28 @@ namespace Backend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllReservations()
         {
-            try {
-                var reservations =  await _context.Reservations.ToListAsync();
+            try
+            {
+                var reservations = await _context.Reservations
+                    .Include(r => r.User)
+                    .Include(r => r.Car)
+                    .Select(r => new
+                    {
+                        r.Id,
+                        r.UserId,
+                        UserName = $"{r.User.FirstName} {r.User.LastName}",
+                        r.CarId,
+                        CarName = $"{r.Car.Brand} {r.Car.Model}",
+                        r.StartDate,
+                        r.EndDate
+                    })
+                    .ToListAsync();
+
                 return Ok(reservations);
-            } catch (Exception e) {
-                return BadRequest(e); 
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { message = "Nie udało się pobrać rezerwacji", error = e.Message });
             }
         }
 
