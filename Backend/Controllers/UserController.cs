@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace Backend.Controllers;
 
@@ -111,5 +113,83 @@ public class UserController: ControllerBase {
         await _context.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserDTO updateUserDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var user = await _context.Users.FindAsync(id);
+
+        if (user == null)
+        {
+            return NotFound("User not found");
+        }
+
+        // Aktualizacja w³aœciwoœci u¿ytkownika
+        user.Username = updateUserDto.Username ?? user.Username;
+        user.Email = updateUserDto.Email ?? user.Email;
+        user.FirstName = updateUserDto.FirstName ?? user.FirstName;
+        user.LastName = updateUserDto.LastName ?? user.LastName;
+
+        // Dodaj inne w³aœciwoœci do aktualizacji w razie potrzeby
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            return BadRequest($"Error updating user: {ex.Message}");
+        }
+
+        return Ok(user); // Zwraca zaktualizowanego u¿ytkownika
+    }
+
+    [HttpPut("{id}/change-password")]
+    //[Authorize] // U¿ywamy autoryzacji, aby upewniæ siê, ¿e u¿ytkownik jest zalogowany
+    // Z jakiegos powodu jak by³o [Authorize] to nie dzia³a³o
+    public async Task<IActionResult> ChangePassword(int id, [FromBody] ChangePasswordDTO changePasswordDto)
+    {
+        var token = HttpContext.Request.Headers["Authorization"].ToString();
+        Console.WriteLine("Token: " + token); // Sprawdzanie tokena
+
+        // Sprawdzenie, czy dane s¹ poprawne
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        // Znalezienie u¿ytkownika w bazie danych
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
+        {
+            return NotFound("User not found");
+        }
+
+        // Sprawdzanie, czy aktualne has³o jest poprawne
+        if (user.Password != changePasswordDto.CurrentPassword)
+        {
+            return Unauthorized("Aktualne has³o jest niepoprawne");
+        }
+
+        // Zmiana has³a
+        user.Password = changePasswordDto.NewPassword;
+
+        // Zapisanie nowego has³a w bazie danych
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            return BadRequest($"Error updating password: {ex.Message}");
+        }
+
+        return Ok("Has³o zosta³o zmienione");
     }
 }
