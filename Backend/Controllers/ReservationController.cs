@@ -17,6 +17,7 @@ namespace Backend.Controllers
 
         public ReservationController(AppDbContext context)
         {
+            var a = User.Identity;
             _context = context;
         }
 
@@ -97,7 +98,7 @@ namespace Backend.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> AddReservation([FromBody] Reservation newReservation)
+        public async Task<IActionResult> AddReservation([FromBody] AddReservationDTO newReservation)
         {
             try {
                 if (newReservation == null)
@@ -113,10 +114,17 @@ namespace Backend.Controllers
                 var userId = Int32.Parse(userIdClaim); 
                 var car = await _context.Cars.FindAsync(newReservation.CarId); 
                 var user = await _context.Users.FindAsync(userId); 
-                if(car == null || user == null) return BadRequest("Car or user not found"); 
-                newReservation.Car = car; 
-                newReservation.User = user; 
-                await _context.Reservations.AddAsync(newReservation);
+                if(car == null || user == null) return BadRequest("Car or user not found");
+                var reservation = new Reservation
+                {
+                    Car = car,
+                    CarId = newReservation.CarId,
+                    UserId = userId,
+                    User = user,
+                    StartDate = newReservation.StartDate,
+                    EndDate = newReservation.EndDate
+                };
+                await _context.Reservations.AddAsync(reservation);
                 await _context.SaveChangesAsync();
 
                 return Ok(newReservation);
