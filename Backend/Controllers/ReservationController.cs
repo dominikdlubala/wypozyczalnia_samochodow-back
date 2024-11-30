@@ -82,11 +82,6 @@ namespace Backend.Controllers
                     .Where(r => r.UserId == userId)
                     .ToListAsync();
 
-                if (!reservations.Any())
-                {
-                    return NotFound("No reservations found for the user.");
-                }
-
                 return Ok(reservations);
             }
             catch (Exception e)
@@ -95,14 +90,15 @@ namespace Backend.Controllers
             }
         }
 
+
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> AddReservation([FromBody] Reservation newReservation)
+        public async Task<IActionResult> AddReservation([FromBody] AddReservationDTO newReservation)
         {
             try {
                 if (newReservation == null)
                 {
-                    return BadRequest("Car object is null");
+                    return BadRequest("Reservation object is null");
                 }
 
                 var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value; 
@@ -113,13 +109,20 @@ namespace Backend.Controllers
                 var userId = Int32.Parse(userIdClaim); 
                 var car = await _context.Cars.FindAsync(newReservation.CarId); 
                 var user = await _context.Users.FindAsync(userId); 
-                if(car == null || user == null) return BadRequest("Car or user not found"); 
-                newReservation.Car = car; 
-                newReservation.User = user; 
-                await _context.Reservations.AddAsync(newReservation);
+                if(car == null || user == null) return BadRequest("Car or user not found");
+                var reservation = new Reservation
+                {
+                    UserId = userId,
+                    CarId = newReservation.CarId,
+                    StartDate = newReservation.StartDate,
+                    EndDate = newReservation.EndDate,
+                    Car = car,
+                    User = user
+                };
+                await _context.Reservations.AddAsync(reservation);
                 await _context.SaveChangesAsync();
 
-                return Ok(newReservation);
+                return Ok(reservation);
             } catch (Exception e){
                 return BadRequest(e); 
             }
