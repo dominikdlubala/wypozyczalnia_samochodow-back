@@ -44,5 +44,19 @@ namespace Backend.Controllers
                 return BadRequest(new { message = "Nie udało się pobrać recenzji", error = e.Message });
             }
         }
+
+        [HttpGet("car/{carId}")]
+        public async Task<IActionResult> GetCarsReviews(int carId) {
+            try {
+                var reviewsQuery = _context.Reviews.AsQueryable(); 
+                reviewsQuery = reviewsQuery.Where(r => r.CarId == carId); 
+
+                var carsReviews = await reviewsQuery.ToListAsync(); 
+
+                return Ok(carsReviews); 
+            } catch(Exception ex){
+                return BadRequest(new { message = "Nie udało się pobrać recenzji samochodu: " + carId, error = ex.Message }); 
+            }
+        }
     }
 }

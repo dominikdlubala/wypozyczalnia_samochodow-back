@@ -106,7 +106,7 @@ public class AppDbContext: DbContext {
         );
 
         modelBuilder.Entity<User>().HasData(
-            new User { Id = 1, Username = "john.doe", Password = "password1", FirstName = "John", LastName = "Doe", RegistrationDate = new DateTime(2021, 6, 1) },
+            new User { Id = 1, Username = "john.doe", Password = "password1", FirstName = "John", LastName = "Doe", RegistrationDate = new DateTime(2021, 6, 1), IsAdmin = true },
             new User { Id = 2, Username = "jane.smith", Password = "password2", FirstName = "Jane", LastName = "Smith", RegistrationDate = new DateTime(2020, 8, 15) },
             new User { Id = 3, Username = "alice.johnson", Password = "password3", FirstName = "Alice", LastName = "Johnson", RegistrationDate = new DateTime(2022, 3, 20) },
             new User { Id = 4, Username = "bob.brown", Password = "password4", FirstName = "Bob", LastName = "Brown", RegistrationDate = new DateTime(2019, 11, 5) },
