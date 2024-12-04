@@ -1,5 +1,8 @@
+using System.Security.Claims;
 using Backend.Data;
 using Backend.Models;
+using Backend.Models.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -56,6 +59,43 @@ namespace Backend.Controllers
                 return Ok(carsReviews); 
             } catch(Exception ex){
                 return BadRequest(new { message = "Nie udało się pobrać recenzji samochodu: " + carId, error = ex.Message }); 
+            }
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> AddCarsReview([FromBody] AddReviewDTO addReviewDTO){
+            try {
+                if (addReviewDTO == null)
+                {
+                    return BadRequest("Reservation object is null");
+                }
+
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value; 
+                if (string.IsNullOrEmpty(userIdClaim))
+                {
+                    return BadRequest("User ID not found.");
+                }
+                var userId = Int32.Parse(userIdClaim); 
+                var car = await _context.Cars.FindAsync(addReviewDTO.CarId); 
+                var user = await _context.Users.FindAsync(userId); 
+                if(car == null || user == null) return BadRequest("Car or user not found");
+                var review = new Review
+                {
+                    UserId = userId,
+                    CarId = addReviewDTO.CarId,
+                    StarsOutOfFive = addReviewDTO.StarsOutOfFive,
+                    ReviewContent = addReviewDTO.ReviewContent,
+                    Car = car,
+                    User = user
+                };
+                await _context.Reviews.AddAsync(review);
+                await _context.SaveChangesAsync();
+
+                return Ok(review);
+            }catch (Exception ex) {
+                return BadRequest(new { message = "Nie udało się dodać recenzji samochodu ", error = ex.Message }); 
+
             }
         }
     }
