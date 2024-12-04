@@ -1,5 +1,6 @@
 ﻿using Backend.Data;
 using Backend.Models.DTOs;
+using Backend.Models.DTOs.Car;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

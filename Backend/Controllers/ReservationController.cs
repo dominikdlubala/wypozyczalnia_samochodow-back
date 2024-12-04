@@ -3,6 +3,8 @@ using System.Security.Claims;
 using Backend.Data;
 using Backend.Models;
 using Backend.Models.DTOs;
+using Backend.Models.DTOs.Car;
+using Backend.Models.DTOs.Reservation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -67,7 +69,7 @@ namespace Backend.Controllers
 
         [Authorize]
         [HttpPost("user")]
-        public async Task<IActionResult> GetUserReservationsById()
+        public async Task<IActionResult> GetUserReservations()
         {
             try
             {
@@ -79,7 +81,27 @@ namespace Backend.Controllers
 
                 int userId = Int32.Parse(userIdClaim);
                 var reservations = await _context.Reservations
+                    .Include(r => r.Car) // Dołączenie danych o samochodzie
                     .Where(r => r.UserId == userId)
+                    .Select(r => new ReservationDTO
+                    {
+                        Id = r.Id,
+                        StartDate = r.StartDate,
+                        EndDate = r.EndDate,
+                        Car = new CarDTO
+                        {
+                            Id = r.Car.Id,
+                            Model = r.Car.Model,
+                            Brand = r.Car.Brand,
+                            ImageUrl = r.Car.ImageUrl,
+                            FuelType = r.Car.FuelType,
+                            Capacity = r.Car.Capacity,
+                            BodyType = r.Car.BodyType,
+                            Color = r.Car.Color,
+                            PricePerDay = r.Car.PricePerDay,
+                            ProductionYear = r.Car.ProductionYear
+                        }
+                    })
                     .ToListAsync();
 
                 return Ok(reservations);
@@ -89,6 +111,7 @@ namespace Backend.Controllers
                 return BadRequest(new { message = e.Message });
             }
         }
+
 
 
         [Authorize]

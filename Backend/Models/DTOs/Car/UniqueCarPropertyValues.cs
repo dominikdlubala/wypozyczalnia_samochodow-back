@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace Backend.Models.DTOs
+namespace Backend.Models.DTOs.Car
 {
     public class UniqueCarPropertyValues
     {
