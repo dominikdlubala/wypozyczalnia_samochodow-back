@@ -1,4 +1,5 @@
 ﻿using Backend.Data;
+using Backend.Models;
 using Backend.Models.DTOs;
 using Backend.Models.DTOs.Car;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +33,7 @@ namespace Backend.Controllers
         public async Task<IActionResult> GetCarById(int id)
         {
             try {
-                var car = await _context.Cars.FindAsync(id);
+                var car = await _context.Cars.Include(c => c.Reservations).FirstOrDefaultAsync(c => c.Id == id);
 
                 if (car == null)
                 {
@@ -44,6 +45,22 @@ namespace Backend.Controllers
                 return BadRequest(e); 
             }
         }
+        // [HttpGet("{id}")]
+        // public async Task<IActionResult> GetCarById(int id)
+        // {
+        //     try {
+        //         var car = await _context.Cars.FindAsync(id);
+
+        //         if (car == null)
+        //         {
+        //             return NotFound();
+        //         }
+
+        //         return Ok(car);
+        //     } catch (Exception e){
+        //         return BadRequest(e); 
+        //     }
+        // }
 
         [HttpGet("topCars")]
         public async Task<IActionResult> GetTopCars() {

@@ -18,7 +18,6 @@ namespace Backend.Models
 
         [JsonIgnore]
         public virtual List<User>? UsersFavourites { get; set; }
-        [JsonIgnore]
 
         public virtual List<Reservation>? Reservations { get; set; }
         [JsonIgnore]
