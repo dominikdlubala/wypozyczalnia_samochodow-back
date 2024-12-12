@@ -22,7 +22,7 @@ namespace Backend.Controllers
         public async Task<IActionResult> GetAllCars()
         {
             try {
-                var cars =  await _context.Cars.ToListAsync();
+                var cars =  await _context.Cars.OrderByDescending(c => c.Id).ToListAsync();
                 return Ok(cars);
             } catch (Exception e) {
                 return BadRequest(e); 
@@ -45,22 +45,6 @@ namespace Backend.Controllers
                 return BadRequest(e); 
             }
         }
-        // [HttpGet("{id}")]
-        // public async Task<IActionResult> GetCarById(int id)
-        // {
-        //     try {
-        //         var car = await _context.Cars.FindAsync(id);
-
-        //         if (car == null)
-        //         {
-        //             return NotFound();
-        //         }
-
-        //         return Ok(car);
-        //     } catch (Exception e){
-        //         return BadRequest(e); 
-        //     }
-        // }
 
         [HttpGet("topCars")]
         public async Task<IActionResult> GetTopCars() {
