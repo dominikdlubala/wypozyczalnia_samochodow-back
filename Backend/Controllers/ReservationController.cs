@@ -102,6 +102,7 @@ namespace Backend.Controllers
                             ProductionYear = r.Car.ProductionYear
                         }
                     })
+                    .OrderByDescending(r => r.EndDate)
                     .ToListAsync();
 
                 return Ok(reservations);
