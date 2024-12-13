@@ -89,6 +89,79 @@ namespace Backend.Controllers
                 return BadRequest(e);
             }
         }
+
+        [HttpPost("uploadImage")]
+        public async Task<IActionResult> UploadCarImage(IFormFile imageFile)
+        {
+            try
+            {
+                if (imageFile == null || imageFile.Length == 0)
+                {
+                    return BadRequest("No image file provided.");
+                }
+
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".jfif", ".xbm", ".tiff", ".pjp", ".apng", ".svgz", ".ico", ".tiff", ".svg", ".webp", ".bmp", ".pjpeg", ".avif"};
+                var fileExtension = Path.GetExtension(imageFile.FileName).ToLower();
+                if (!allowedExtensions.Contains(fileExtension))
+                {
+                    return BadRequest("Invalid file type.");
+                }
+
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "cars");
+                Directory.CreateDirectory(uploadsFolder);
+
+                var uniqueFileName = $"{Guid.NewGuid()}_{imageFile.FileName}";
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(fileStream);
+                }
+
+                return Ok(new { uniqueFileName });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("images/{carId}")]
+        public async Task<IActionResult> GetCarImage(int carId)
+        {
+            try
+            {
+                var car = await _context.Cars.FindAsync(carId);
+                if (car == null || string.IsNullOrEmpty(car.ImageUrl))
+                {
+                    return NotFound($"Image for car with ID {carId} not found.");
+                }
+
+                var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", car.ImageUrl.TrimStart('/'));
+                if (!System.IO.File.Exists(imagePath))
+                {
+                    return NotFound("Image file not found on server.");
+                }
+
+                var fileExtension = Path.GetExtension(imagePath).ToLower();
+                string mimeType = "image/jpeg";
+                if (fileExtension == ".png")
+                {
+                    mimeType = "image/png";
+                }
+                else if (fileExtension == ".gif")
+                {
+                    mimeType = "image/gif";
+                }
+
+                var imageFile = System.IO.File.OpenRead(imagePath);
+                return File(imageFile, mimeType);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 
 }
