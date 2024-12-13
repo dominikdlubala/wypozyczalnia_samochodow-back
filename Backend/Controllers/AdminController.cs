@@ -100,14 +100,14 @@ namespace Backend.Controllers
                     return BadRequest("No image file provided.");
                 }
 
-                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".jfif", ".xbm", ".tiff", ".pjp", ".apng", ".svgz", ".ico", ".tiff", ".svg", ".webp", ".bmp", ".pjpeg", ".avif"};
                 var fileExtension = Path.GetExtension(imageFile.FileName).ToLower();
                 if (!allowedExtensions.Contains(fileExtension))
                 {
                     return BadRequest("Invalid file type.");
                 }
 
-                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "cars");
                 Directory.CreateDirectory(uploadsFolder);
 
                 var uniqueFileName = $"{Guid.NewGuid()}_{imageFile.FileName}";
@@ -118,9 +118,7 @@ namespace Backend.Controllers
                     await imageFile.CopyToAsync(fileStream);
                 }
 
-                var imageUrl = $"/uploads/{uniqueFileName}";
-
-                return Ok(imageUrl);
+                return Ok(new { uniqueFileName });
             }
             catch (Exception e)
             {
