@@ -64,7 +64,7 @@ namespace Backend.Controllers
                         ReservationCount = _context.Reservations.Count(r => r.CarId == c.Id)
                     })
                     .OrderByDescending(c => c.ReservationCount)
-                    .Take(5)
+                    .Take(3)
                     .ToListAsync(); 
                 return Ok(cars); 
             } catch (Exception e){
