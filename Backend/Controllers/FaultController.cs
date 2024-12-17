@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Backend.Models.DTOs.Fault;
 
 namespace Backend.Controllers
 {
@@ -83,7 +84,7 @@ namespace Backend.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> AddFault([FromBody] Fault newFault)
+        public async Task<IActionResult> AddFault([FromBody] AddFaultDTO newFault)
         {
             try
             {
@@ -100,6 +101,12 @@ namespace Backend.Controllers
 
                 var userId = Int32.Parse(userIdClaim);
 
+                var user = _context.Users.Find(userId);
+                if(user == null)
+                {
+                    return BadRequest("User not found");
+                }
+
                 var car = await _context.Cars.FindAsync(newFault.CarId);
                 if (car == null)
                 {
@@ -113,7 +120,7 @@ namespace Backend.Controllers
                     Description = newFault.Description,
                     DateOfIssue = DateTime.UtcNow,
                     Car = car,
-                    ReportedUser = await _context.Users.FindAsync(userId)
+                    ReportedUser = user,
                 };
 
                 await _context.Faults.AddAsync(fault);
