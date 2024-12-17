@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Backend.Data;
 using Backend.Models;
 using Backend.Models.DTOs;
+using Backend.Models.DTOs.Review;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -48,21 +49,35 @@ namespace Backend.Controllers
             }
         }
 
-        [HttpGet("car/{carId}")]
-        public async Task<IActionResult> GetCarsReviews(int carId) {
-            try {
-                var reviewsQuery = _context.Reviews.AsQueryable(); 
-                reviewsQuery = reviewsQuery.Where(r => r.CarId == carId); 
+		[HttpGet("car/{carId}")]
+		public async Task<IActionResult> GetCarsReviews(int carId)
+		{
+			try
+			{
+				var carsReviews = await _context.Reviews
+					.Where(r => r.CarId == carId)
+					.Select(r => new ReviewDTO
+                    {
+                        Id = r.Id,
+                        CarId = r.CarId,
+                        UserId = r.UserId,
+                        Username = r.User != null ? r.User.Username : "Unknown",
+                        StarsOutOfFive = r.StarsOutOfFive,
+                        ReviewContent = r.ReviewContent,
+                        DateOfIssue = r.DateOfIssue
+                    })
+					.ToListAsync();
 
-                var carsReviews = await reviewsQuery.ToListAsync(); 
+				return Ok(carsReviews);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(new { message = "Nie udało się pobrać recenzji samochodu: " + carId, error = ex.Message });
+			}
+		}
 
-                return Ok(carsReviews); 
-            } catch(Exception ex){
-                return BadRequest(new { message = "Nie udało się pobrać recenzji samochodu: " + carId, error = ex.Message }); 
-            }
-        }
 
-        [Authorize]
+		[Authorize]
         [HttpPost]
         public async Task<IActionResult> AddCarsReview([FromBody] AddReviewDTO addReviewDTO){
             try {
