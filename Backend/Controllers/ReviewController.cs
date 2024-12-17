@@ -101,6 +101,7 @@ namespace Backend.Controllers
                     CarId = addReviewDTO.CarId,
                     StarsOutOfFive = addReviewDTO.StarsOutOfFive,
                     ReviewContent = addReviewDTO.ReviewContent,
+                    DateOfIssue = addReviewDTO.DateOfIssue,
                     Car = car,
                     User = user
                 };
