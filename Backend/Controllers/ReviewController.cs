@@ -39,6 +39,7 @@ namespace Backend.Controllers
                         r.ReviewContent,
                         r.DateOfIssue
                     })
+                    .OrderByDescending(r => r.DateOfIssue)
                     .ToListAsync();
 
                 return Ok(reviews);

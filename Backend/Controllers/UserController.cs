@@ -26,7 +26,7 @@ public class UserController: ControllerBase {
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<User>>> GetUsers() {
-        return await _context.Users.ToListAsync(); 
+        return await _context.Users.OrderByDescending(u => u.RegistrationDate).ToListAsync(); 
     }
 
     [HttpGet("{id:int}")]
