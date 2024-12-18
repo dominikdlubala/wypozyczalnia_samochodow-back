@@ -40,6 +40,7 @@ namespace Backend.Controllers
                         r.StartDate,
                         r.EndDate
                     })
+                    .OrderByDescending(r => r.EndDate)
                     .ToListAsync();
 
                 return Ok(reservations);
@@ -153,24 +154,18 @@ namespace Backend.Controllers
         }
 
         [Authorize]
-        [HttpDelete("delete{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteReservation(int id)
         {
             try {
-                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value; 
-                if(string.IsNullOrEmpty(userIdClaim)){
-                    return BadRequest("User not authorized"); 
-                }
-                var userId = Int32.Parse(userIdClaim); 
-
-                var reservation = _context.Reservations.FirstOrDefault(r => r.Id == id && r.UserId == userId); 
+                var reservation = _context.Reservations.FirstOrDefault(r => r.Id == id); 
                 if(reservation == null){
                     return BadRequest("Reservation not found"); 
                 }   
                 _context.Reservations.Remove(reservation); 
                 await _context.SaveChangesAsync(); 
 
-                return Ok();
+                return NoContent();
             } catch (Exception e){
                 return BadRequest(e); 
             }

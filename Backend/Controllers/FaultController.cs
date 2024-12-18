@@ -37,6 +37,7 @@ namespace Backend.Controllers
                         f.Description,
                         f.DateOfIssue
                     })
+                    .OrderByDescending(comparer => comparer.DateOfIssue)
                     .ToListAsync();
 
                 return Ok(faults);
