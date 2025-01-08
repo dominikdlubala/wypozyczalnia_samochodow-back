@@ -77,8 +77,50 @@ namespace Backend.Controllers
 			}
 		}
 
+        [Authorize]
+        [HttpGet("car/{carId}/user-review")]
+        public async Task<IActionResult> GetUserReviewForCar(int carId)
+        {
+            try
+            {
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim))
+                {
+                    return BadRequest("User ID not found.");
+                }
 
-		[Authorize]
+                var userId = Int32.Parse(userIdClaim);
+
+                var review = await _context.Reviews
+                    .Where(r => r.CarId == carId && r.UserId == userId)
+                    .Select(r => new ReviewDTO
+                    {
+                        Id = r.Id,
+                        CarId = r.CarId,
+                        UserId = r.UserId,
+                        Username = r.User != null ? r.User.Username : "Unknown",
+                        StarsOutOfFive = r.StarsOutOfFive,
+                        ReviewContent = r.ReviewContent,
+                        DateOfIssue = r.DateOfIssue
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (review == null)
+                {
+                    return NotFound(new { message = "Review not found for the specified car and user." });
+                }
+
+                return Ok(review);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Nie udało się pobrać recenzji dla tego auta.", error = ex.Message });
+            }
+        }
+
+
+
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> AddCarsReview([FromBody] AddReviewDTO addReviewDTO){
             try {
@@ -115,5 +157,43 @@ namespace Backend.Controllers
 
             }
         }
+
+        [Authorize]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> EditReview(int id, [FromBody] EditReviewDTO editReviewDTO)
+        {
+            try
+            {
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim))
+                {
+                    return BadRequest("User ID not found.");
+                }
+
+                var userId = Int32.Parse(userIdClaim);
+
+                // Znalezienie recenzji w bazie danych
+                var review = await _context.Reviews.FirstOrDefaultAsync(r => r.Id == id && r.UserId == userId);
+                if (review == null)
+                {
+                    return NotFound(new { message = "Review not found or you do not have permission to edit this review." });
+                }
+
+                // Aktualizacja danych recenzji
+                review.StarsOutOfFive = editReviewDTO.StarsOutOfFive;
+                review.ReviewContent = editReviewDTO.ReviewContent;
+                review.DateOfIssue = DateTime.UtcNow; // Aktualizacja daty ostatniej edycji
+
+                _context.Reviews.Update(review);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Review updated successfully.", review });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Failed to edit review.", error = ex.Message });
+            }
+        }
+
     }
 }
