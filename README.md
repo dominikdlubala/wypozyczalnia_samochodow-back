@@ -21,18 +21,26 @@ Make sure the following software is installed on your machine:
 
 ### Setting Up the Project
 
-1. Clone the repository:
+The following instructions have been proved to be working on a Windows machine. It should also work on a Linux/Mac machine, though it has not been checked.
+
+1. Check if you have git installed
+   ```bash
+   git --version
+   ```
+   If it's not installed visit https://git-scm.com/book/en/v2/Getting-Started-Installing-Git and follow the steps to installing git on your machine 
+
+2. Clone the repository:
    ```bash
    git clone https://github.com/dominikdlubala/wypozyczalnia_samochodow-back
    cd wypozyczalnia_samochodow-back
    ```
 
-2. Restore the NuGet packages:
+3. Restore the NuGet packages:
    ```bash
    dotnet restore
    ```
 
-3. Create the database:
+4. Create the database:
    - In the `appsettings.json` file, update the `ConnectionStrings` section with your SQL Server connection string:
      ```json
      "ConnectionStrings": {
@@ -46,7 +54,7 @@ Make sure the following software is installed on your machine:
 
    This will create the necessary tables and set up the database schema for your application.
 
-4. Run the project:
+5. Run the project:
    ```bash
    dotnet run
    ```
