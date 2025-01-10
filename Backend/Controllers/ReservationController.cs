@@ -8,6 +8,7 @@ using Backend.Models.DTOs.Reservation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Backend.Controllers
 {
@@ -23,6 +24,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
+        [SwaggerOperation(Summary = "Retrieve all reservations.", Description = "Returns a list of all reservations ordered by their end date in descending order.")]
         public async Task<IActionResult> GetAllReservations()
         {
             try
@@ -52,6 +54,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet("{id}")]
+        [SwaggerOperation(Summary = "Retrieve reservation by ID.", Description = "Returns a reservation object based on the provided ID.")]
         public async Task<IActionResult> GetReservationById(int id)
         {
             try {
@@ -70,6 +73,7 @@ namespace Backend.Controllers
 
         [Authorize]
         [HttpPost("user")]
+        [SwaggerOperation(Summary = "Retrieve user-specific reservations.", Description = "Returns a list of reservations made by the currently authenticated user, including associated car details.")]
         public async Task<IActionResult> GetUserReservations()
         {
             try
@@ -118,6 +122,7 @@ namespace Backend.Controllers
 
         [Authorize]
         [HttpPost]
+        [SwaggerOperation(Summary = "Add a new reservation.", Description = "Creates a new reservation for the authenticated user.")]
         public async Task<IActionResult> AddReservation([FromBody] AddReservationDTO newReservation)
         {
             try {
@@ -155,6 +160,7 @@ namespace Backend.Controllers
 
         [Authorize]
         [HttpDelete("{id}")]
+        [SwaggerOperation(Summary = "Delete a reservation.", Description = "Deletes a reservation by its ID.")]
         public async Task<IActionResult> DeleteReservation(int id)
         {
             try {

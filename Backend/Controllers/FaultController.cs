@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Backend.Models.DTOs.Fault;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Backend.Controllers
 {
@@ -20,6 +21,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
+        [SwaggerOperation(Summary = "Retrieve all faults.", Description = "Returns a list of all faults including related car and user information.")]
         public async Task<IActionResult> GetAllFaults()
         {
             try
@@ -50,6 +52,7 @@ namespace Backend.Controllers
 
         [Authorize]
         [HttpGet("user")]
+        [SwaggerOperation(Summary = "Retrieve faults reported by the logged-in user.", Description = "Returns a list of faults reported by the currently authenticated user.")]
         public async Task<IActionResult> GetUserFaults()
         {
             try
@@ -85,6 +88,7 @@ namespace Backend.Controllers
 
         [Authorize]
         [HttpPost]
+        [SwaggerOperation(Summary = "Add a new fault.", Description = "Allows an authenticated user to report a fault for a car.")]
         public async Task<IActionResult> AddFault([FromBody] AddFaultDTO newFault)
         {
             try

@@ -6,6 +6,7 @@ using Backend.Models.DTOs.Review;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Backend.Controllers
 {
@@ -21,6 +22,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
+        [SwaggerOperation(Summary = "Retrieve all reviews.", Description = "Returns a list of all reviews ordered by their issue date in descending order.")]
         public async Task<IActionResult> GetAllReviews()
         {
             try
@@ -51,6 +53,7 @@ namespace Backend.Controllers
         }
 
 		[HttpGet("car/{carId}")]
+        [SwaggerOperation(Summary = "Retrieve reviews for a specific car.", Description = "Returns a list of reviews for the car specified by its ID.")]
 		public async Task<IActionResult> GetCarsReviews(int carId)
 		{
 			try
@@ -79,6 +82,7 @@ namespace Backend.Controllers
 
         [Authorize]
         [HttpGet("car/{carId}/user-review")]
+        [SwaggerOperation(Summary = "Retrieve the user's review for a specific car.", Description = "Returns the review written by the authenticated user for the car specified by its ID.")]
         public async Task<IActionResult> GetUserReviewForCar(int carId)
         {
             try
@@ -122,6 +126,7 @@ namespace Backend.Controllers
 
         [Authorize]
         [HttpPost]
+        [SwaggerOperation(Summary = "Add a review for a car.", Description = "Allows the authenticated user to add a review for a car.")]
         public async Task<IActionResult> AddCarsReview([FromBody] AddReviewDTO addReviewDTO){
             try {
                 if (addReviewDTO == null)
@@ -160,6 +165,7 @@ namespace Backend.Controllers
 
         [Authorize]
         [HttpPut("{id}")]
+        [SwaggerOperation(Summary = "Edit a review.", Description = "Allows the authenticated user to edit their review for a car.")]
         public async Task<IActionResult> EditReview(int id, [FromBody] EditReviewDTO editReviewDTO)
         {
             try

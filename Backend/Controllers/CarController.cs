@@ -4,6 +4,7 @@ using Backend.Models.DTOs;
 using Backend.Models.DTOs.Car;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Backend.Controllers
 {
@@ -19,6 +20,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
+        [SwaggerOperation(Summary = "Retrieve all cars.", Description = "Returns a list of all cars ordered by their ID in descending order.")]
         public async Task<IActionResult> GetAllCars()
         {
             try {
@@ -30,6 +32,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet("{id}")]
+        [SwaggerOperation(Summary = "Retrieve car by ID.", Description = "Returns a car object along with its reservations based on the provided ID.")]
         public async Task<IActionResult> GetCarById(int id)
         {
             try {
@@ -47,6 +50,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet("topCars")]
+        [SwaggerOperation(Summary = "Retrieve top cars.", Description = "Returns the top 3 cars based on the number of reservations they have.")]
         public async Task<IActionResult> GetTopCars() {
             try {
                 var cars = await _context.Cars
@@ -73,6 +77,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet("uniqueProperties")]
+        [SwaggerOperation(Summary = "Retrieve unique car property values.", Description = "Returns unique values for fuel types, body types, and colors available in the cars database.")]
         public async Task<IActionResult> GetUniquePropertyValues()
         {
             try {
@@ -101,6 +106,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet("filter")]
+        [SwaggerOperation(Summary = "Retrieve filtered cars.", Description = "Filters cars based on various criteria such as engine type, displacement, body type, color, price range, production year, and reservation dates.")]
         public async Task<IActionResult> GetFilteredCars([FromQuery] CarFilter filter)
         {
             try {

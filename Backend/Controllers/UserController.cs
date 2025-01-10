@@ -10,6 +10,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Backend.Models.DTOs.User;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Backend.Controllers;
 
@@ -25,11 +26,13 @@ public class UserController: ControllerBase {
     }
 
     [HttpGet]
+    [SwaggerOperation(Summary = "Retrieve all users.", Description = "Returns a list of all users ordered by their registration date in descending order.")]
     public async Task<ActionResult<IEnumerable<User>>> GetUsers() {
         return await _context.Users.OrderByDescending(u => u.RegistrationDate).ToListAsync(); 
     }
 
     [HttpGet("{id:int}")]
+    [SwaggerOperation(Summary = "Retrieve a user by ID.", Description = "Returns a user object based on the provided ID.")]
     public async Task<ActionResult<User>> GetUser(int id) {
         var user = await _context.Users.FindAsync(id); 
 
@@ -38,6 +41,7 @@ public class UserController: ControllerBase {
     }
 
     [HttpPost("login")]
+    [SwaggerOperation(Summary = "User login.", Description = "Authenticates a user using username and password, returning a JWT token upon successful login.")]
     public async Task<IActionResult> Login([FromBody]LoginRequestDto credentials) {
         var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == credentials.Username && u.Password == credentials.Password); 
         if(user == null) return Unauthorized("Invalid username or password"); 
@@ -64,6 +68,7 @@ public class UserController: ControllerBase {
     }
 
     [HttpPost("find")]
+    [SwaggerOperation(Summary = "Find a user by credentials.", Description = "Finds a user based on their username and password.")]
     public async Task<ActionResult<User>> FindUser([FromBody]LoginRequestDto credentials) {
 
         try {
@@ -78,6 +83,7 @@ public class UserController: ControllerBase {
     }
 
     [HttpPost("register")]
+    [SwaggerOperation(Summary = "Register a new user.", Description = "Creates a new user account with the provided registration details.")]
     public async Task<ActionResult<User>> AddUser([FromBody] RegisterFormValues formValues) {
 
         if(!ModelState.IsValid) {
@@ -101,6 +107,7 @@ public class UserController: ControllerBase {
     }
 
     [HttpDelete("{id}")]
+    [SwaggerOperation(Summary = "Delete a user.", Description = "Deletes a user by their ID.")]
     public async Task<IActionResult> DeleteUser(int id)
     {
         var user = await _context.Users.FindAsync(id);
@@ -117,6 +124,8 @@ public class UserController: ControllerBase {
     }
 
     [HttpPut("{id}")]
+    [SwaggerOperation(Summary = "Update user information.", Description = "Updates the specified user's information.")]
+    [Authorize]
     public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserDTO updateUserDto)
     {
         if (!ModelState.IsValid)
@@ -131,13 +140,10 @@ public class UserController: ControllerBase {
             return NotFound("User not found");
         }
 
-        // Aktualizacja w³aœciwoœci u¿ytkownika
         user.Username = updateUserDto.Username ?? user.Username;
         user.Email = updateUserDto.Email ?? user.Email;
         user.FirstName = updateUserDto.FirstName ?? user.FirstName;
         user.LastName = updateUserDto.LastName ?? user.LastName;
-
-        // Dodaj inne w³aœciwoœci do aktualizacji w razie potrzeby
 
         try
         {
@@ -148,40 +154,34 @@ public class UserController: ControllerBase {
             return BadRequest($"Error updating user: {ex.Message}");
         }
 
-        return Ok(user); // Zwraca zaktualizowanego u¿ytkownika
+        return Ok(user); // Zwraca zaktualizowanego uï¿½ytkownika
     }
 
     [HttpPut("{id}/change-password")]
-    //[Authorize] // U¿ywamy autoryzacji, aby upewniæ siê, ¿e u¿ytkownik jest zalogowany
-    // Z jakiegos powodu jak by³o [Authorize] to nie dzia³a³o
+    [SwaggerOperation(Summary = "Change user's password.", Description = "Allows the user to change their password.")]
+    [Authorize] 
     public async Task<IActionResult> ChangePassword(int id, [FromBody] ChangePasswordDTO changePasswordDto)
     {
         var token = HttpContext.Request.Headers["Authorization"].ToString();
-        Console.WriteLine("Token: " + token); // Sprawdzanie tokena
 
-        // Sprawdzenie, czy dane s¹ poprawne
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        // Znalezienie u¿ytkownika w bazie danych
         var user = await _context.Users.FindAsync(id);
         if (user == null)
         {
             return NotFound("User not found");
         }
 
-        // Sprawdzanie, czy aktualne has³o jest poprawne
         if (user.Password != changePasswordDto.CurrentPassword)
         {
-            return Unauthorized("Aktualne has³o jest niepoprawne");
+            return Unauthorized("Aktualne hasï¿½o jest niepoprawne");
         }
 
-        // Zmiana has³a
         user.Password = changePasswordDto.NewPassword;
 
-        // Zapisanie nowego has³a w bazie danych
         try
         {
             await _context.SaveChangesAsync();
@@ -191,6 +191,6 @@ public class UserController: ControllerBase {
             return BadRequest($"Error updating password: {ex.Message}");
         }
 
-        return Ok("Has³o zosta³o zmienione");
+        return Ok("Hasï¿½o zostaï¿½o zmienione");
     }
 }
