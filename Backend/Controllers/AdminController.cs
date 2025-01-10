@@ -3,6 +3,7 @@ using Backend.Models;
 using Backend.Models.DTOs.Car;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Backend.Controllers
 {
@@ -19,6 +20,8 @@ namespace Backend.Controllers
         }
 
         // Akcje dotyczące klasy Car
+        
+        [SwaggerOperation(Summary = "Adds a car", Description = "Adds a Car type entity to database based on user input sent through an api request in a JSON body")]
         [HttpPost("car")]
         public async Task<IActionResult> AddCar([FromBody] AddOrEditCarDTO carDto)
         {
@@ -41,6 +44,7 @@ namespace Backend.Controllers
             return CreatedAtAction(nameof(AddCar), new { id = car.Id }, car);
         }
 
+        [SwaggerOperation(Summary = "Updates a car", Description = "Updates car of a provided id, based on the JSON body sent in an api request")]
         [HttpPut("car/{id}")]
         public async Task<IActionResult> UpdateCar(int id, [FromBody] AddOrEditCarDTO carDto)
         {
@@ -67,6 +71,7 @@ namespace Backend.Controllers
             return NoContent();
         }
 
+        [SwaggerOperation(Summary = "Deletes a car", Description = "Removes a car of a provided id from the database")]
         [HttpDelete("car/{id}")]
         public async Task<IActionResult> DeleteCar(int id)
         {
@@ -90,6 +95,7 @@ namespace Backend.Controllers
             }
         }
 
+        [SwaggerOperation(Summary = "Uploads a car image", Description = "Uploads a car image to the database")]
         [HttpPost("uploadImage")]
         public async Task<IActionResult> UploadCarImage(IFormFile imageFile)
         {
@@ -126,6 +132,7 @@ namespace Backend.Controllers
             }
         }
 
+        [SwaggerOperation(Summary = "Retrieves a car image", Description = "Returns an image file from the database based on the provided car id")]
         [HttpGet("images/{carId}")]
         public async Task<IActionResult> GetCarImage(int carId)
         {

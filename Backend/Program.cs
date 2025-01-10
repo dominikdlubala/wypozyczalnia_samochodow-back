@@ -13,13 +13,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
+    c.EnableAnnotations(); 
+    
     c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
         Title = "Wypozyczalnia API",
         Version = "v1"
     });
 
-    // Dodaj definicjê schematu autoryzacji (Bearer Token)
+    // Dodaj definicjï¿½ schematu autoryzacji (Bearer Token)
     c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -27,10 +29,10 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "bearer",
         BearerFormat = "JWT",
         In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-        Description = "WprowadŸ token JWT w formacie: {token}"
+        Description = "Wprowadï¿½ token JWT w formacie: {token}"
     });
 
-    // Wymuœ autoryzacjê dla wszystkich endpointów
+    // Wymuï¿½ autoryzacjï¿½ dla wszystkich endpointï¿½w
     c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
     {
         {
@@ -45,6 +47,7 @@ builder.Services.AddSwaggerGen(c =>
             Array.Empty<string>()
         }
     });
+
 });
 
 
