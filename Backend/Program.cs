@@ -61,6 +61,9 @@ builder.Services.AddCors(options => {
     });
     });
 
+// var jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY"); 
+// if(string.IsNullOrEmpty(jwtKey)) { throw new Exception("JWT key is empty"); }
+
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]);
 
