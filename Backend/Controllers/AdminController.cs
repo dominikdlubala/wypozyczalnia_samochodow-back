@@ -76,50 +76,64 @@ namespace Backend.Controllers
         [HttpPost("car")]
         public async Task<IActionResult> AddCar([FromBody] AddOrEditCarDTO carDto)
         {
-            var car = new Car
+            try
             {
-                Brand = carDto.Brand,
-                Model = carDto.Model,
-                ImageUrl = carDto.ImageUrl,
-                FuelType = carDto.FuelType,
-                Capacity = carDto.Capacity,
-                BodyType = carDto.BodyType,
-                Color = carDto.Color,
-                PricePerDay = carDto.PricePerDay,
-                ProductionYear = carDto.ProductionYear
-            };
+                var car = new Car
+                {
+                    Brand = carDto.Brand,
+                    Model = carDto.Model,
+                    ImageUrl = carDto.ImageUrl,
+                    FuelType = carDto.FuelType,
+                    Capacity = carDto.Capacity,
+                    BodyType = carDto.BodyType,
+                    Color = carDto.Color,
+                    PricePerDay = carDto.PricePerDay,
+                    ProductionYear = carDto.ProductionYear
+                };
 
-            _context.Cars.Add(car);
-            await _context.SaveChangesAsync();
+                _context.Cars.Add(car);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(AddCar), new { id = car.Id }, car);
+                return CreatedAtAction(nameof(AddCar), new { id = car.Id }, car);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            
         }
 
         [SwaggerOperation(Summary = "Updates a car", Description = "Updates car of a provided id, based on the JSON body sent in an api request")]
         [HttpPut("car/{id}")]
         public async Task<IActionResult> UpdateCar(int id, [FromBody] AddOrEditCarDTO carDto)
         {
-            var car = await _context.Cars.FindAsync(id);
-
-            if (car == null)
+            try
             {
-                return NotFound();
+                var car = await _context.Cars.FindAsync(id);
+
+                if (car == null)
+                {
+                    return NotFound();
+                }
+
+                car.Brand = carDto.Brand;
+                car.Model = carDto.Model;
+                car.ImageUrl = carDto.ImageUrl;
+                car.FuelType = carDto.FuelType;
+                car.Capacity = carDto.Capacity;
+                car.BodyType = carDto.BodyType;
+                car.Color = carDto.Color;
+                car.PricePerDay = carDto.PricePerDay;
+                car.ProductionYear = carDto.ProductionYear;
+
+                _context.Cars.Update(car);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
-
-            car.Brand = carDto.Brand;
-            car.Model = carDto.Model;
-            car.ImageUrl = carDto.ImageUrl;
-            car.FuelType = carDto.FuelType;
-            car.Capacity = carDto.Capacity;
-            car.BodyType = carDto.BodyType;
-            car.Color = carDto.Color;
-            car.PricePerDay = carDto.PricePerDay;
-            car.ProductionYear = carDto.ProductionYear;
-
-            _context.Cars.Update(car);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            
         }
 
         [SwaggerOperation(Summary = "Deletes a car", Description = "Removes a car of a provided id from the database")]
