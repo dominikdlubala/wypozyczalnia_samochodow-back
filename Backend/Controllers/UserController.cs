@@ -18,179 +18,140 @@ namespace Backend.Controllers;
 [Route("api/[controller]")]
 public class UserController: ControllerBase {
     private readonly AppDbContext _context; 
-    private readonly IConfiguration _configuration; 
+    private readonly IConfiguration _configuration;
+    private readonly PasswordHasher<User> _passwordHasher = new();
 
     public UserController(AppDbContext context, IConfiguration configuration) {
         _context = context;
         _configuration = configuration; 
     }
 
-    [HttpGet]
-    [SwaggerOperation(Summary = "Retrieve all users.", Description = "Returns a list of all users ordered by their registration date in descending order.")]
-    public async Task<ActionResult<IEnumerable<User>>> GetUsers() {
-        return await _context.Users.OrderByDescending(u => u.RegistrationDate).ToListAsync(); 
-    }
-
     [HttpGet("{id:int}")]
-    [SwaggerOperation(Summary = "Retrieve a user by ID.", Description = "Returns a user object based on the provided ID.")]
-    public async Task<ActionResult<User>> GetUser(int id) {
-        var user = await _context.Users.FindAsync(id); 
+    [Authorize]
+    public async Task<ActionResult<User>> GetUser(int id)
+    {
+        try
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            if (userId != id) return Forbid();
 
-        if(user == null) return NotFound(); 
-        return user; 
+            var user = await _context.Users.FindAsync(id);
+            if (user == null) return NotFound();
+            return user;
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
     }
 
     [HttpPost("login")]
-    [SwaggerOperation(Summary = "User login.", Description = "Authenticates a user using username and password, returning a JWT token upon successful login.")]
-    public async Task<IActionResult> Login([FromBody]LoginRequestDto credentials) {
-        var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == credentials.Username && u.Password == credentials.Password); 
-        if(user == null) return Unauthorized("Invalid username or password"); 
+    public async Task<IActionResult> Login([FromBody] LoginRequestDto credentials)
+    {
+        try
+        {
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == credentials.Username);
+            if (user == null || _passwordHasher.VerifyHashedPassword(user, user.Password, credentials.Password) == PasswordVerificationResult.Failed)
+                return Unauthorized("Invalid username or password");
 
-        var tokenHandler = new JwtSecurityTokenHandler(); 
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_configuration["JwtSettings:Key"]);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[] {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User")
+                }),
+                Expires = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["JwtSettings:ExpiryMinutes"])),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+                Audience = _configuration["JwtSettings:Audience"],
+                Issuer = _configuration["JwtSettings:Issuer"]
+            };
 
-        var key = Encoding.ASCII.GetBytes(_configuration["JwtSettings:Key"]); 
-        var tokenDescriptor = new SecurityTokenDescriptor {
-            Subject = new ClaimsIdentity(new Claim[] {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User") // Dodanie flagi do tokena
-            }),
-            Expires = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["JwtSettings:ExpiryMinutes"])),
-            Issuer = _configuration["JwtSettings:Issuer"],
-            Audience = _configuration["JwtSettings:Audience"],
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-        }; 
-
-        var token = tokenHandler.CreateToken(tokenDescriptor); 
-        var tokenString = tokenHandler.WriteToken(token); 
-
-        return Ok(new { Token = tokenString }); 
-    }
-
-    [HttpPost("find")]
-    [SwaggerOperation(Summary = "Find a user by credentials.", Description = "Finds a user based on their username and password.")]
-    public async Task<ActionResult<User>> FindUser([FromBody]LoginRequestDto credentials) {
-
-        try {
-            var user = await _context.Users.FirstOrDefaultAsync(user => user.Username == credentials.Username && user.Password == credentials.Password); 
-
-            if(user == null) return NotFound(); 
-
-            return user; 
-        } catch (Exception e) {
-            return BadRequest(e.Message); 
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return Ok(new { Token = tokenHandler.WriteToken(token) });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
 
     [HttpPost("register")]
-    [SwaggerOperation(Summary = "Register a new user.", Description = "Creates a new user account with the provided registration details.")]
-    public async Task<ActionResult<User>> AddUser([FromBody] RegisterFormValues formValues) {
-
-        if(!ModelState.IsValid) {
-            var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage); 
-            foreach(var error in errors) {
-                Console.WriteLine(error); 
-            }
-            return BadRequest(ModelState); 
-        }
-
-        User user = new User {
-            Email = formValues.Email,
-            Username = formValues.Username,
-            Password = formValues.Password,
-        };
-
-        _context.Users.Add(user); 
-        await _context.SaveChangesAsync(); 
-
-        return Ok(); 
-    }
-
-    [HttpDelete("{id}")]
-    [SwaggerOperation(Summary = "Delete a user.", Description = "Deletes a user by their ID.")]
-    public async Task<IActionResult> DeleteUser(int id)
+    public async Task<IActionResult> Register([FromBody] RegisterFormValues formValues)
     {
-        var user = await _context.Users.FindAsync(id);
-
-        if (user == null)
+        try
         {
-            return NotFound();
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (await _context.Users.AnyAsync(u => u.Username == formValues.Username || u.Email == formValues.Email))
+                return BadRequest("Username or Email already exists");
+
+            var user = new User
+            {
+                Email = formValues.Email,
+                Username = formValues.Username,
+                Password = _passwordHasher.HashPassword(null, formValues.Password)
+            };
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+            return Ok();
         }
-
-        _context.Users.Remove(user);
-        await _context.SaveChangesAsync();
-
-        return NoContent();
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
     }
 
     [HttpPut("{id}")]
-    [SwaggerOperation(Summary = "Update user information.", Description = "Updates the specified user's information.")]
     [Authorize]
     public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserDTO updateUserDto)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
-        var user = await _context.Users.FindAsync(id);
-
-        if (user == null)
-        {
-            return NotFound("User not found");
-        }
-
-        user.Username = updateUserDto.Username ?? user.Username;
-        user.Email = updateUserDto.Email ?? user.Email;
-        user.FirstName = updateUserDto.FirstName ?? user.FirstName;
-        user.LastName = updateUserDto.LastName ?? user.LastName;
-
         try
         {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateException ex)
-        {
-            return BadRequest($"Error updating user: {ex.Message}");
-        }
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            if (userId != id && !User.IsInRole("Admin")) return Forbid();
 
-        return Ok(user); // Zwraca zaktualizowanego u�ytkownika
+            var user = await _context.Users.FindAsync(id);
+            if (user == null) return NotFound();
+
+            user.Username = updateUserDto.Username ?? user.Username;
+            user.Email = updateUserDto.Email ?? user.Email;
+            user.FirstName = updateUserDto.FirstName ?? user.FirstName;
+            user.LastName = updateUserDto.LastName ?? user.LastName;
+
+            await _context.SaveChangesAsync();
+            return Ok(user);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
     }
 
     [HttpPut("{id}/change-password")]
-    [SwaggerOperation(Summary = "Change user's password.", Description = "Allows the user to change their password.")]
-    [Authorize] 
+    [Authorize]
     public async Task<IActionResult> ChangePassword(int id, [FromBody] ChangePasswordDTO changePasswordDto)
     {
-        var token = HttpContext.Request.Headers["Authorization"].ToString();
-
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
-        var user = await _context.Users.FindAsync(id);
-        if (user == null)
-        {
-            return NotFound("User not found");
-        }
-
-        if (user.Password != changePasswordDto.CurrentPassword)
-        {
-            return Unauthorized("Aktualne has�o jest niepoprawne");
-        }
-
-        user.Password = changePasswordDto.NewPassword;
-
         try
         {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateException ex)
-        {
-            return BadRequest($"Error updating password: {ex.Message}");
-        }
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            if (userId != id) return Forbid();
 
-        return Ok("Has�o zosta�o zmienione");
+            var user = await _context.Users.FindAsync(id);
+            if (user == null) return NotFound();
+
+            if (_passwordHasher.VerifyHashedPassword(user, user.Password, changePasswordDto.CurrentPassword) == PasswordVerificationResult.Failed)
+                return Unauthorized("Current password is incorrect");
+
+            user.Password = _passwordHasher.HashPassword(user, changePasswordDto.NewPassword);
+            await _context.SaveChangesAsync();
+            return Ok("Password changed successfully");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
     }
 }
