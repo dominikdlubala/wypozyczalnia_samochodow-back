@@ -3,6 +3,7 @@ using Backend.Models;
 using Backend.Models.DTOs.Car;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Backend.Controllers
@@ -19,56 +20,120 @@ namespace Backend.Controllers
             _context = context;
         }
 
-        // Akcje dotyczące klasy Car
-        
+        // User actions
+        [HttpGet("user")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        {
+            try
+            {
+                return Ok(await _context.Users.OrderByDescending(u => u.RegistrationDate).ToListAsync());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("user/{id:int}")]
+        [SwaggerOperation(Summary = "Retrieve a user by ID.", Description = "Returns a user object based on the provided ID.")]
+        public async Task<ActionResult<User>> GetUser(int id)
+        {
+            try
+            {
+                var user = await _context.Users.FindAsync(id);
+
+                if (user == null) return NotFound();
+                return user;
+            } catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+
+        }
+
+        [HttpDelete("user/{id}")]
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            try
+            {
+                var user = await _context.Users.FindAsync(id);
+                if (user == null) return NotFound();
+
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // Car Actions
+
         [SwaggerOperation(Summary = "Adds a car", Description = "Adds a Car type entity to database based on user input sent through an api request in a JSON body")]
         [HttpPost("car")]
         public async Task<IActionResult> AddCar([FromBody] AddOrEditCarDTO carDto)
         {
-            var car = new Car
+            try
             {
-                Brand = carDto.Brand,
-                Model = carDto.Model,
-                ImageUrl = carDto.ImageUrl,
-                FuelType = carDto.FuelType,
-                Capacity = carDto.Capacity,
-                BodyType = carDto.BodyType,
-                Color = carDto.Color,
-                PricePerDay = carDto.PricePerDay,
-                ProductionYear = carDto.ProductionYear
-            };
+                var car = new Car
+                {
+                    Brand = carDto.Brand,
+                    Model = carDto.Model,
+                    ImageUrl = carDto.ImageUrl,
+                    FuelType = carDto.FuelType,
+                    Capacity = carDto.Capacity,
+                    BodyType = carDto.BodyType,
+                    Color = carDto.Color,
+                    PricePerDay = carDto.PricePerDay,
+                    ProductionYear = carDto.ProductionYear
+                };
 
-            _context.Cars.Add(car);
-            await _context.SaveChangesAsync();
+                _context.Cars.Add(car);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(AddCar), new { id = car.Id }, car);
+                return CreatedAtAction(nameof(AddCar), new { id = car.Id }, car);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            
         }
 
         [SwaggerOperation(Summary = "Updates a car", Description = "Updates car of a provided id, based on the JSON body sent in an api request")]
         [HttpPut("car/{id}")]
         public async Task<IActionResult> UpdateCar(int id, [FromBody] AddOrEditCarDTO carDto)
         {
-            var car = await _context.Cars.FindAsync(id);
-
-            if (car == null)
+            try
             {
-                return NotFound();
+                var car = await _context.Cars.FindAsync(id);
+
+                if (car == null)
+                {
+                    return NotFound();
+                }
+
+                car.Brand = carDto.Brand;
+                car.Model = carDto.Model;
+                car.ImageUrl = carDto.ImageUrl;
+                car.FuelType = carDto.FuelType;
+                car.Capacity = carDto.Capacity;
+                car.BodyType = carDto.BodyType;
+                car.Color = carDto.Color;
+                car.PricePerDay = carDto.PricePerDay;
+                car.ProductionYear = carDto.ProductionYear;
+
+                _context.Cars.Update(car);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
-
-            car.Brand = carDto.Brand;
-            car.Model = carDto.Model;
-            car.ImageUrl = carDto.ImageUrl;
-            car.FuelType = carDto.FuelType;
-            car.Capacity = carDto.Capacity;
-            car.BodyType = carDto.BodyType;
-            car.Color = carDto.Color;
-            car.PricePerDay = carDto.PricePerDay;
-            car.ProductionYear = carDto.ProductionYear;
-
-            _context.Cars.Update(car);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            
         }
 
         [SwaggerOperation(Summary = "Deletes a car", Description = "Removes a car of a provided id from the database")]
