@@ -23,6 +23,7 @@ namespace Backend.Controllers
             _context = context;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         [SwaggerOperation(Summary = "Retrieve all reservations.", Description = "Returns a list of all reservations ordered by their end date in descending order.")]
         public async Task<IActionResult> GetAllReservations()
@@ -53,24 +54,6 @@ namespace Backend.Controllers
             }
         }
 
-        [HttpGet("{id}")]
-        [SwaggerOperation(Summary = "Retrieve reservation by ID.", Description = "Returns a reservation object based on the provided ID.")]
-        public async Task<IActionResult> GetReservationById(int id)
-        {
-            try {
-                var reservation = await _context.Reservations.FindAsync(id);
-
-                if (reservation == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(reservation);
-            } catch (Exception e){
-                return BadRequest(e); 
-            }
-        }
-
         [Authorize]
         [HttpPost("user")]
         [SwaggerOperation(Summary = "Retrieve user-specific reservations.", Description = "Returns a list of reservations made by the currently authenticated user, including associated car details.")]
@@ -86,7 +69,7 @@ namespace Backend.Controllers
 
                 int userId = Int32.Parse(userIdClaim);
                 var reservations = await _context.Reservations
-                    .Include(r => r.Car) // Dołączenie danych o samochodzie
+                    .Include(r => r.Car) 
                     .Where(r => r.UserId == userId)
                     .Select(r => new ReservationDTO
                     {
@@ -136,10 +119,25 @@ namespace Backend.Controllers
                 {
                     return BadRequest("User ID not found.");
                 }
+
                 var userId = Int32.Parse(userIdClaim); 
                 var car = await _context.Cars.FindAsync(newReservation.CarId); 
                 var user = await _context.Users.FindAsync(userId); 
-                if(car == null || user == null) return BadRequest("Car or user not found");
+                
+                if(car == null || user == null) 
+                    return BadRequest("Car or user not found");
+
+                var overlappingReservation = await _context.Reservations
+                    .Where(r => r.CarId == newReservation.CarId &&
+                                r.StartDate < newReservation.EndDate &&
+                                r.EndDate > newReservation.StartDate)
+                    .FirstOrDefaultAsync();
+
+                if (overlappingReservation != null)
+                {
+                    return BadRequest("This car is already reserved during the selected period.");
+                }
+
                 var reservation = new Reservation
                 {
                     UserId = userId,
@@ -149,6 +147,7 @@ namespace Backend.Controllers
                     Car = car,
                     User = user
                 };
+
                 await _context.Reservations.AddAsync(reservation);
                 await _context.SaveChangesAsync();
 

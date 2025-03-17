@@ -113,6 +113,9 @@ public class UserController: ControllerBase {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             if (userId != id && !User.IsInRole("Admin")) return Forbid();
 
+            if (await _context.Users.AnyAsync(u => u.Id != userId && (u.Username == updateUserDto.Username || u.Email == updateUserDto.Email)))
+                return BadRequest("Username or Email already exists");
+
             var user = await _context.Users.FindAsync(id);
             if (user == null) return NotFound();
 
